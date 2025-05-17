@@ -1,38 +1,30 @@
-// import Redis from "ioredis";
-const Redis = require("ioredis");
-if (!process.env.UPSTASH_REDIS_REST_URL) {
-  throw new Error("❌ Missing UPSTASH_REDIS_REST_URL in environment variables");
-}
-const redis = new Redis(process.env.UPSTASH_REDIS_REST_URL); // Load from env variables
-// console.log(redis);
-redis.on("connect", () => console.log("✅ Connected to Upstash Redis!"));
-redis.on("error", (err) => console.error("❌ Redis Connection Error:", err));
+// redisClient.js
 
-// Function to set a key-value pair in Redis
-const setCache = async (key, value, expiry = 3600) => {
-  try {
-    await redis.set(key, JSON.stringify(value), "EX", expiry); // Auto-expire
-    console.log(`✅ Cached: ${key}`);
-  } catch (error) {
-    console.error("❌ Redis Set Error:", error);
-  }
+const redis = require("redis");
+
+// Direct connection to Redis server
+const client = redis.createClient({
+  host: "127.0.0.1",   // Redis server address (localhost)
+  port: 6379,          // Redis server default port
+});
+
+// Connect to Redis
+client.connect().catch(console.error);
+
+// Handle Redis connection errors
+client.on("error", (err) => {
+  console.error("❌ Redis Connection Error:", err);
+});
+
+// Function to set cache value
+const setCache = async (key, value) => {
+  await client.set(key, value);
 };
 
-// Function to get a value from Redis
+// Function to get cache value
 const getCache = async (key) => {
-  try {
-    const data = await redis.get(key);
-    return data ? JSON.parse(data) : null; // Parse JSON if found
-  } catch (error) {
-    console.error("❌ Redis Get Error:", error);
-    return null;
-  }
+  const value = await client.get(key);
+  return value;
 };
-// Using an async IIFE to await our async calls
-// (async () => {
-//   await setCache("go", "goa");
-//   const value = await getCache("go");
-//   console.log("Cached value:", value);
-// })();
 
-module.exports = { redis, setCache, getCache };
+module.exports = { client, setCache, getCache };

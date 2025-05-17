@@ -1,42 +1,10 @@
-// import React from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Button } from "@radix-ui/themes";
-// import HealthCampList from "../pages/HealthCampList"; // Make sure path matches your project structure
-// import { useCureitContext } from "../utils/ContextProvider";
-
-// function HealthCampsPage() {
-//   const navigate = useNavigate();
-//   const { profile } = useCureitContext();
-
-//   // Handle volunteer function
-//   const handleVolunteer = (campId) => {
-//     // Your volunteer logic here
-//     console.log(profile?.id);
-//     //health worker doctor particiapting addition
-//     //display those doctors too
-//     console.log("Volunteered for camp:", campId);
-//   };
-
-//   return (
-//     <div className="mt-12">
-//       <HealthCampList
-//         userRole={profile?.role || "user"}
-//         userLocation={profile?.location || ""}
-//         onVolunteer={handleVolunteer}
-//       />
-//     </div>
-//   );
-// }
-
-// export default HealthCampsPage;
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Dialog } from "@radix-ui/themes";
-import HealthCampList from "../pages/HealthCampList"; // Make sure path matches your project structure
+import HealthCampList from "../pages/HealthCampList";
 import { useCureitContext } from "../utils/ContextProvider";
 import axios from "axios";
 
-// Volunteer Confirmation Modal Component
 const VolunteerConfirmationModal = ({
   open,
   onOpenChange,
@@ -44,9 +12,7 @@ const VolunteerConfirmationModal = ({
   doctorId,
 }) => {
   const api = import.meta.env.VITE_API_BASE_URL;
-
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [checklist, setChecklist] = useState({
     detailsCorrect: false,
     documentsVerified: false,
@@ -63,6 +29,7 @@ const VolunteerConfirmationModal = ({
   };
 
   const allChecked = Object.values(checklist).every((value) => value === true);
+
   const handleSubmit = async () => {
     if (!allChecked) {
       alert("Please confirm all requirements before proceeding");
@@ -70,7 +37,6 @@ const VolunteerConfirmationModal = ({
     }
     setIsSubmitting(true);
     try {
-      // Send request to backend with doctorId and campId
       const res = await axios.post(
         `${api}/api/healthWorkerRoutes/doctor-volunteer`,
         {
@@ -91,6 +57,7 @@ const VolunteerConfirmationModal = ({
       setIsSubmitting(false);
     }
   };
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-lg">
@@ -109,57 +76,22 @@ const VolunteerConfirmationModal = ({
         <div className="mb-4 rounded-md bg-blue-50 p-4">
           <strong>Health Camp Details:</strong>
           <p className="mb-1 text-sm">
-            {" "}
-            <b>
-              <i>
-                <u>Name: </u>
-              </i>
-            </b>{" "}
-            {campDetails?.campName}
+            <b><i><u>Name: </u></i></b> {campDetails?.campName}
           </p>
           <p className="mb-1 text-sm">
-            {" "}
-            <b>
-              <i>
-                <u>Location: </u>
-              </i>
-            </b>{" "}
-            {campDetails?.address}
+            <b><i><u>Location: </u></i></b> {campDetails?.address}
           </p>
           <p className="mb-1 text-sm">
-            <b>
-              <i>
-                <u>Date:</u>
-              </i>
-            </b>{" "}
-            {campDetails?.startDate} - {campDetails?.endDate}
+            <b><i><u>Date:</u></i></b> {campDetails?.startDate} - {campDetails?.endDate}
           </p>
           <p className="mb-0 text-sm">
-            <b>
-              <i>
-                <u>Organizer:</u>
-              </i>
-            </b>{" "}
-            {campDetails?.organizerName}
-          </p>
-          {/* <p className="mb-0 text-sm">
-          <b><i><u>Contact Person:</u></i></b>  {campDetails?.organizerName}
-          </p> */}
-          <p className="mb-0 text-sm">
-            <b>
-              <i>
-                <u>Contact Person:</u>
-              </i>
-            </b>{" "}
-            {campDetails?.contactPerson}
+            <b><i><u>Organizer:</u></i></b> {campDetails?.organizerName}
           </p>
           <p className="mb-0 text-sm">
-            <b>
-              <i>
-                <u>Contact No:</u>
-              </i>
-            </b>{" "}
-            {campDetails?.contactPhone}
+            <b><i><u>Contact Person:</u></i></b> {campDetails?.contactPerson}
+          </p>
+          <p className="mb-0 text-sm">
+            <b><i><u>Contact No:</u></i></b> {campDetails?.contactPhone}
           </p>
         </div>
 
@@ -250,9 +182,9 @@ const VolunteerConfirmationModal = ({
     </Dialog.Root>
   );
 };
+
 function HealthCampsPage() {
   const api = import.meta.env.VITE_API_BASE_URL;
-
   const navigate = useNavigate();
   const { profile } = useCureitContext();
   const [showVolunteerModal, setShowVolunteerModal] = useState(false);
@@ -261,19 +193,14 @@ function HealthCampsPage() {
   const [loadingVolunteered, setLoadingVolunteered] = useState(true);
 
   useEffect(() => {
-    if (!profile?.id) return; // guard: wait for profile to load
+    if (!profile?.id) return;
 
     const fetchCamps = async () => {
-      console.log(
-        `${api}/api/healthWorkerRoutes/doctor/volunteered/${profile?.id}`,
-      );
       try {
         const res = await axios.get(
           `${api}/api/healthWorkerRoutes/doctor/volunteered/${profile?.id}`,
         );
-        console.log(res);
         setMyVolunteered(res.data);
-        console.log("hjhihjkslos", myVolunteered, res.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -281,21 +208,11 @@ function HealthCampsPage() {
       }
     };
     fetchCamps();
-  }, [[profile?.id]]);
+  }, [profile?.id]);
 
-  // Handle volunteer function
   const handleVolunteer = ({ index, camp }) => {
-    console.log(profile?.id);
-    console.log("Volunteered for camp:", index);
-    // console.log(profile);
-
-    // Store the selected camp and show the modal
-    console.log(camp);
-
     setSelectedCamp(camp);
     setShowVolunteerModal(true);
-    console.log(camp);
-    console.log(showVolunteerModal);
   };
 
   return (
@@ -309,7 +226,6 @@ function HealthCampsPage() {
         />
       )}
 
-      {/* Volunteer Confirmation Modal */}
       {selectedCamp && (
         <VolunteerConfirmationModal
           open={showVolunteerModal}
@@ -321,4 +237,5 @@ function HealthCampsPage() {
     </div>
   );
 }
+
 export default HealthCampsPage;

@@ -1,0 +1,2 @@
+************* Module cureit
+cureit:1:0: F0001: No module named cureit (fatal)
